@@ -2,9 +2,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import unicode_literals
 
-import datetime
 import dateutil
-import durationpy
+import time
+from ..timeparse import timeparse
 
 import math
 import os
@@ -83,11 +83,12 @@ def is_ubuntu():
 def is_windows():
     return IS_WINDOWS_PLATFORM
 
-def get_datetime_from_timestamp_or_duration(time):
-    try:
-        return datetime.datetime.today() - durationpy.from_str(time)
-    except:
-        return dateutil.parser.parse(time)
+def get_datetime_from_timestamp_or_duration(input_time):
+    parsed = timeparse(input_time)
+    if parsed is not None:
+        return int(time.time() - parsed)
+    else:
+        return dateutil.parser.parse(input_time)
 
 def get_version_info(scope):
     versioninfo = 'docker-compose version {}, build {}'.format(
