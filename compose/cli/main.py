@@ -53,6 +53,7 @@ from .formatter import ConsoleWarningFormatter
 from .formatter import Formatter
 from .log_printer import build_log_presenters
 from .log_printer import LogPrinter
+from .utils import get_datetime_from_timestamp_or_duration
 from .utils import get_version_info
 from .utils import human_readable_file_size
 from .utils import yesno
@@ -615,6 +616,8 @@ class TopLevelCommand(object):
             --no-color          Produce monochrome output.
             -f, --follow        Follow log output.
             -t, --timestamps    Show timestamps.
+            --since time        Show logs since timestamp (e.g. 2013-01-02T13:23:37)
+                                or relative (e.g. 42m for 42 minutes)
             --tail="all"        Number of lines to show from the end of the logs
                                 for each container.
         """
@@ -626,8 +629,14 @@ class TopLevelCommand(object):
                 tail = int(tail)
             elif tail != 'all':
                 raise UserError("tail flag must be all or a number")
+
+        since = options['--since']
+        if since is not None:
+            since = get_datetime_from_timestamp_or_duration(since)
+
         log_args = {
             'follow': options['--follow'],
+            'since': since,
             'tail': tail,
             'timestamps': options['--timestamps']
         }
