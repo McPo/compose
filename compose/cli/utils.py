@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import unicode_literals
 
-import dateutil
+from datetime import datetime
 import time
 from ..timeparse import timeparse
 
@@ -88,7 +88,7 @@ def get_datetime_from_timestamp_or_duration(input_time):
     if parsed is not None:
         return int(time.time() - parsed)
     else:
-        return dateutil.parser.parse(input_time)
+        return datetime.fromisoformat(input_time)
 
 def get_version_info(scope):
     versioninfo = 'docker-compose version {}, build {}'.format(
