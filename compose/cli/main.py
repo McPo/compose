@@ -620,6 +620,8 @@ class TopLevelCommand(object):
                                 or relative (e.g. 42m for 42 minutes)
             --tail="all"        Number of lines to show from the end of the logs
                                 for each container.
+            --until time        [API 1.35+] Show logs before a timestamp (e.g. 2013-01-02T13:23:37)
+                                or relative (e.g. 42m for 42 minutes)
         """
         containers = self.project.containers(service_names=options['SERVICE'], stopped=True)
 
@@ -634,11 +636,19 @@ class TopLevelCommand(object):
         if since is not None:
             since = get_datetime_from_timestamp_or_duration(since)
 
+        until = options['--until']
+        if until is not None:
+            if docker.utils.version_lt(self.project.client.api_version, '1.35'):
+                raise UserError('--until is only available on API 1.35+.')
+            else :
+                until = get_datetime_from_timestamp_or_duration(until)
+
         log_args = {
             'follow': options['--follow'],
-            'since': since,
             'tail': tail,
-            'timestamps': options['--timestamps']
+            'since': since,
+            'timestamps': options['--timestamps'],
+            'until': until,
         }
         print("Attaching to", list_containers(containers))
         log_printer_from_project(
