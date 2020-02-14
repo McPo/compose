@@ -648,7 +648,7 @@ class TopLevelCommand(object):
             'tail': tail,
             'since': since,
             'timestamps': options['--timestamps'],
-            'until': until,
+            'until': until
         }
         print("Attaching to", list_containers(containers))
         log_printer_from_project(
