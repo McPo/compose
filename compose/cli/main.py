@@ -640,7 +640,7 @@ class TopLevelCommand(object):
         if until is not None:
             if docker.utils.version_lt(self.project.client.api_version, '1.35'):
                 raise UserError('--until is only available on API 1.35+.')
-            else :
+            else:
                 until = get_datetime_from_timestamp_or_duration(until)
 
         log_args = {

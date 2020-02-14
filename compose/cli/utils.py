@@ -2,22 +2,21 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import unicode_literals
 
-from datetime import datetime
-import time
-from ..timeparse import timeparse
-
 import math
 import os
 import platform
 import ssl
 import subprocess
 import sys
+import time
+from datetime import datetime
 
 import docker
 import six
 
 import compose
 from ..const import IS_WINDOWS_PLATFORM
+from ..timeparse import timeparse
 
 # WindowsError is not defined on non-win32 platforms. Avoid runtime errors by
 # defining it as OSError (its parent class) if missing.
@@ -83,12 +82,14 @@ def is_ubuntu():
 def is_windows():
     return IS_WINDOWS_PLATFORM
 
+
 def get_datetime_from_timestamp_or_duration(input_time):
     parsed = timeparse(input_time)
     if parsed is not None:
         return int(time.time() - parsed)
     else:
         return datetime.fromisoformat(input_time)
+
 
 def get_version_info(scope):
     versioninfo = 'docker-compose version {}, build {}'.format(
