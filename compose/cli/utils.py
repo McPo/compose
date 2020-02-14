@@ -86,7 +86,7 @@ def is_windows():
 def get_datetime_from_timestamp_or_duration(input_time):
     parsed = timeparse(input_time)
     if parsed is not None:
-        return int(time.time() - parsed)
+        return datetime.fromtimestamp(int(time.time() - parsed))
     else:
         return datetime.fromisoformat(input_time)
 
