@@ -2482,6 +2482,41 @@ services:
         result = self.dispatch(['logs', '-f', '-t'])
         assert re.search(r'(\d{4})-(\d{2})-(\d{2})T(\d{2})\:(\d{2})\:(\d{2})', result.stdout)
 
+    def test_logs_since_duration(self):
+        self.base_dir = 'tests/fixtures/logs-since-until-composefile'
+        self.dispatch(['up'])
+        result = self.dispatch(['logs', '--since', '3s'])
+        assert result.stdout.strip().count('\n') == 3
+
+    def test_logs_since_timestamp(self):
+        self.base_dir = 'tests/fixtures/logs-since-until-composefile'
+        self.dispatch(['up'])
+
+        timestamp = str(datetime.datetime.now() - datetime.timedelta(seconds=3))
+
+        result = self.dispatch(['logs', '--since', timestamp])
+        assert result.stdout.strip().count('\n') == 3
+
+    @v3_only()
+    def test_logs_until_duration(self):
+        os.environ['COMPOSE_API_VERSION'] = '1.35'
+        self.base_dir = 'tests/fixtures/logs-since-until-composefile'
+        self.dispatch(['up'])
+
+        result = self.dispatch(['logs', '--until', '3s'])
+        assert result.stdout.strip().count('\n') == 3
+
+    @v3_only()
+    def test_logs_until_timestamp(self):
+        os.environ['COMPOSE_API_VERSION'] = '1.35'
+        self.base_dir = 'tests/fixtures/logs-since-until-composefile'
+        self.dispatch(['up'])
+
+        timestamp = str(datetime.datetime.now() - datetime.timedelta(seconds=3))
+
+        result = self.dispatch(['logs', '--until', timestamp])
+        assert result.stdout.strip().count('\n') == 2
+
     def test_logs_tail(self):
         self.base_dir = 'tests/fixtures/logs-tail-composefile'
         self.dispatch(['up'])
