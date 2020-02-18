@@ -2491,21 +2491,23 @@ services:
         result = self.dispatch(['logs', '--since', '3s'])
         clock_readings = get_datetime_from_clock_log(result.stdout)
 
-        assert len(clock_readings) == 2
+        assert len(clock_readings) > 1
         for r in clock_readings:
-            assert timestamp <= r
+            # clock lacks microseconds precision
+            assert timestamp.replace(microsecond=0) <= r
 
     def test_logs_since_timestamp(self):
         self.base_dir = 'tests/fixtures/logs-since-until-composefile'
         self.dispatch(['up'])
 
         timestamp = datetime.datetime.now() - datetime.timedelta(seconds=3)
-        result = self.dispatch(['logs', '--since', str(timestamp)])
+        result = self.dispatch(['logs', '--since', timestamp.isoformat()])
         clock_readings = get_datetime_from_clock_log(result.stdout)
 
-        assert len(clock_readings) == 3
+        assert len(clock_readings) > 1
         for r in clock_readings:
-            assert timestamp <= r
+            # clock lacks microseconds precision
+            assert timestamp.replace(microsecond=0) <= r
 
     @v3_only()
     def test_logs_until_duration(self):
@@ -2517,7 +2519,7 @@ services:
         clock_readings = get_datetime_from_clock_log(result.stdout)
         timestamp = datetime.datetime.now() - datetime.timedelta(seconds=3)
 
-        assert len(clock_readings) == 3
+        assert len(clock_readings) > 1
         for r in clock_readings:
             assert r <= timestamp
 
@@ -2528,10 +2530,10 @@ services:
         self.dispatch(['up'])
 
         timestamp = datetime.datetime.now() - datetime.timedelta(seconds=3)
-        result = self.dispatch(['logs', '--until', str(timestamp)])
+        result = self.dispatch(['logs', '--until', timestamp.isoformat()])
         clock_readings = get_datetime_from_clock_log(result.stdout)
 
-        assert len(clock_readings) == 2
+        assert len(clock_readings) > 1
         for r in clock_readings:
             assert r <= timestamp
 
