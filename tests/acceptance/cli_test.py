@@ -22,6 +22,7 @@ from docker import errors
 from .. import mock
 from ..helpers import BUSYBOX_IMAGE_WITH_TAG
 from ..helpers import create_host_file
+from ..helpers import get_datetime_from_clock_log
 from compose.cli.command import get_project
 from compose.config.errors import DuplicateOverrideFileFound
 from compose.container import Container
@@ -2485,17 +2486,26 @@ services:
     def test_logs_since_duration(self):
         self.base_dir = 'tests/fixtures/logs-since-until-composefile'
         self.dispatch(['up'])
+
+        timestamp = datetime.datetime.now() - datetime.timedelta(seconds=3)
         result = self.dispatch(['logs', '--since', '3s'])
-        assert result.stdout.strip().count('\n') == 3
+        clock_readings = get_datetime_from_clock_log(result.stdout)
+
+        assert len(clock_readings) == 2
+        for r in clock_readings:
+            assert timestamp <= r
 
     def test_logs_since_timestamp(self):
         self.base_dir = 'tests/fixtures/logs-since-until-composefile'
         self.dispatch(['up'])
 
-        timestamp = str(datetime.datetime.now() - datetime.timedelta(seconds=3))
+        timestamp = datetime.datetime.now() - datetime.timedelta(seconds=3)
+        result = self.dispatch(['logs', '--since', str(timestamp)])
+        clock_readings = get_datetime_from_clock_log(result.stdout)
 
-        result = self.dispatch(['logs', '--since', timestamp])
-        assert result.stdout.strip().count('\n') == 3
+        assert len(clock_readings) == 3
+        for r in clock_readings:
+            assert timestamp <= r
 
     @v3_only()
     def test_logs_until_duration(self):
@@ -2504,7 +2514,12 @@ services:
         self.dispatch(['up'])
 
         result = self.dispatch(['logs', '--until', '3s'])
-        assert result.stdout.strip().count('\n') == 3
+        clock_readings = get_datetime_from_clock_log(result.stdout)
+        timestamp = datetime.datetime.now() - datetime.timedelta(seconds=3)
+
+        assert len(clock_readings) == 3
+        for r in clock_readings:
+            assert r <= timestamp
 
     @v3_only()
     def test_logs_until_timestamp(self):
@@ -2512,10 +2527,13 @@ services:
         self.base_dir = 'tests/fixtures/logs-since-until-composefile'
         self.dispatch(['up'])
 
-        timestamp = str(datetime.datetime.now() - datetime.timedelta(seconds=3))
+        timestamp = datetime.datetime.now() - datetime.timedelta(seconds=3)
+        result = self.dispatch(['logs', '--until', str(timestamp)])
+        clock_readings = get_datetime_from_clock_log(result.stdout)
 
-        result = self.dispatch(['logs', '--until', timestamp])
-        assert result.stdout.strip().count('\n') == 2
+        assert len(clock_readings) == 2
+        for r in clock_readings:
+            assert r <= timestamp
 
     def test_logs_tail(self):
         self.base_dir = 'tests/fixtures/logs-tail-composefile'
