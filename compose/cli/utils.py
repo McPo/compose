@@ -13,6 +13,7 @@ from datetime import datetime
 
 import docker
 import six
+from dateutil.parser import parse
 
 import compose
 from ..const import IS_WINDOWS_PLATFORM
@@ -88,7 +89,7 @@ def get_datetime_from_timestamp_or_duration(input_time):
     if parsed is not None:
         return datetime.fromtimestamp(int(time.time() - parsed))
     else:
-        return datetime.fromisoformat(input_time)
+        return parse(input_time)
 
 
 def get_version_info(scope):
